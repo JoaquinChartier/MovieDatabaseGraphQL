@@ -19,8 +19,11 @@ from django.views.decorators.csrf import csrf_exempt
 
 from graphene_django.views import GraphQLView
 from MovieDatabaseGraphQL.schema import schema
+from MovieDatabase.views import PrivateGraphQLView, _login, _signup
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("graphql", csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema))),
+    path('signup/', csrf_exempt(_signup)),
+    path('login/', csrf_exempt(_login)),
+    path("movies", csrf_exempt(PrivateGraphQLView.as_view(graphiql=True, schema=schema))),
 ]

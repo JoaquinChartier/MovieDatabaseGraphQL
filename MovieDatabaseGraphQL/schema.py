@@ -22,7 +22,7 @@ class Query(graphene.ObjectType):
     all_movies = graphene.List(MovieType)
     all_actors = graphene.List(ActorType)
     all_characters = graphene.List(CharacterType)
-    movie_by_title = graphene.Field(MovieType, title=graphene.String(required=True))
+    movie_by = graphene.List(MovieType, title=graphene.String(required=True), genre=graphene.String(required=True))
 
     def resolve_all_movies(root, info):
         # We can easily optimize query count in the resolve method
@@ -36,9 +36,9 @@ class Query(graphene.ObjectType):
         # We can easily optimize query count in the resolve method
         return Character.objects.all()
 
-    def resolve_movie_by_title(root, info, title):
+    def resolve_movie_by(root, info, title, genre):
         try:
-            return Movie.objects.get(title=title)
+            return Movie.objects.filter(title__icontains=title, genre__icontains=genre)
         except Movie.DoesNotExist:
             return None
 
