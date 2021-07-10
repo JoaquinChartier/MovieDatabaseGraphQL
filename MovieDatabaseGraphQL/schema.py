@@ -30,10 +30,16 @@ class Query(graphene.ObjectType):
     orderByAsc=graphene.String(default_value="id"), 
     orderByDes=graphene.String(default_value="id"))
 
-    actors_by = all_actors = graphene.List(ActorType, 
+    actors_by = graphene.List(ActorType, 
     name=graphene.String(required=True),
     gender=graphene.String(default_value=""),
     ethnicity=graphene.String(default_value=""),
+    orderByAsc=graphene.String(default_value="id"), 
+    orderByDes=graphene.String(default_value="id"))
+
+    characters_by = graphene.List(CharacterType, 
+    character_name=graphene.String(required=True),
+    credit_order=graphene.Int(default_value=0),
     orderByAsc=graphene.String(default_value="id"), 
     orderByDes=graphene.String(default_value="id"))
 
@@ -76,5 +82,23 @@ class Query(graphene.ObjectType):
         except Actor.DoesNotExist:
             return None
 
+    def resolve_characters_by(root, info, character_name, credit_order, orderByAsc, orderByDes):
+        try:
+            orderByAsc = orderByAsc.lower()
+            orderByDes = orderByDes.lower()
+            if (orderByAsc == orderByDes):
+                orderBy = orderByAsc
+            elif (orderByAsc == 'id'):
+                orderBy = f'-{orderByDes}'
+            else:
+                orderBy = orderByAsc
+
+            if (credit_order != 0):
+                return Character.objects.filter(character_name__icontains=character_name, credit_order=credit_order).order_by(orderBy)
+            else:
+                return Character.objects.filter(character_name__icontains=character_name).order_by(orderBy)
+                
+        except Character.DoesNotExist:
+            return None
 
 schema = graphene.Schema(query=Query)
